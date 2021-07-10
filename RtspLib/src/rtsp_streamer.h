@@ -11,31 +11,35 @@
 
 class RtstStreamer {
  public:
-  RtstStreamer(const std::string url);
+  RtstStreamer(const int mode, const std::string &url, const int width,
+               const int height, const int depth, const int fps);
   ~RtstStreamer();
 
   bool Initialize();
 
-  void push(const uint8_t *image, const size_t size);
+  void setImage(const uint8_t *image, const size_t size);
 
- private:
-  const static int kMaxQueueSize;
-  void Run();
   static void MediaConfigure(GstRTSPMediaFactory *factory, GstRTSPMedia *media,
                              gpointer user_data);
   static void NeedData(GstElement *appsrc, guint unused, gpointer user_data);
 
-  std::unique_ptr<uint8_t[]> pop();
+ private:
+  void Run();
+
+  static const std::string kH264;
+  static const std::string kJpeg;
 
   std::string url_;
   int width_;
   int height_;
+  int depth_;
   int fps_;
+  int mode_;
   std::thread thread_;
   uint64_t timestamp_;
   guint image_size_;
   std::mutex mutex_;
-  std::queue<std::unique_ptr<uint8_t[]>> queue_;
+  std::unique_ptr<uint8_t[]> buffer_;
 
   GMainLoop *loop_;
   GstRTSPServer *server_;
