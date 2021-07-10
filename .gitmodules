@@ -1,0 +1,6 @@
+[submodule "RtspLib/lib/gst-rtsp-server"]
+	path = RtspLib/lib/gst-rtsp-server
+	url = https://github.com/GStreamer/gst-rtsp-server.git
+[submodule "RtspLib/lib/plog"]
+	path = RtspLib/lib/plog
+	url = https://github.com/SergiusTheBest/plog.git
