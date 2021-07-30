@@ -1,5 +1,6 @@
 #include "wrapper.h"
 #include "rtsp_streamer.h"
+#include "type.h"
 
 #include <plog/Initializers/RollingFileInitializer.h>
 #include <plog/Log.h>
@@ -11,7 +12,9 @@ RtstStreamer* pRtspStreamer;
 void Initialize(int format, char* url, int width, int height, int depth) {
   plog::init(plog::debug, "log.txt");
 
-  pRtspStreamer = new RtstStreamer(0, format, url, width, height, depth, 1);
+  pRtspStreamer =
+      new RtstStreamer(Encode::kJPEG, static_cast<ImageFormat>(format), url,
+                       width, height, depth, 1);
   pRtspStreamer->Initialize();
 
   PLOG_DEBUG << "Exit : Initialize";

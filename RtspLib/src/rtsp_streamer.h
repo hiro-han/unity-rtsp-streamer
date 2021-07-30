@@ -1,6 +1,8 @@
 #ifndef RTSP_STREAMER_H_
 #define RTSP_STREAMER_H_
 
+#include "type.h"
+
 #include <gst/gst.h>
 #include <gst/rtsp-server/rtsp-server.h>
 
@@ -11,9 +13,9 @@
 
 class RtstStreamer {
  public:
-  RtstStreamer(const int mode, const int format, const std::string &url,
-               const int width, const int height, const int depth,
-               const int fps);
+  RtstStreamer(const Encode enc, const ImageFormat format,
+               const std::string &url, const int width, const int height,
+               const int depth, const int fps);
   ~RtstStreamer();
 
   bool Initialize();
@@ -35,8 +37,8 @@ class RtstStreamer {
   int height_;
   int depth_;
   int fps_;
-  int mode_;
-  int format_;
+  Encode enc_;
+  ImageFormat format_;
   std::thread thread_;
   uint64_t timestamp_;
   guint image_size_;
