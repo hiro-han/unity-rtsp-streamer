@@ -11,8 +11,9 @@
 
 class RtstStreamer {
  public:
-  RtstStreamer(const int mode, const std::string &url, const int width,
-               const int height, const int depth, const int fps);
+  RtstStreamer(const int mode, const int format, const std::string &url,
+               const int width, const int height, const int depth,
+               const int fps);
   ~RtstStreamer();
 
   bool Initialize();
@@ -35,6 +36,7 @@ class RtstStreamer {
   int depth_;
   int fps_;
   int mode_;
+  int format_;
   std::thread thread_;
   uint64_t timestamp_;
   guint image_size_;

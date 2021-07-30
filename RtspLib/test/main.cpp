@@ -14,8 +14,8 @@ int main() {
     return -1;
   }
 
-  RtstStreamer rtsp_streamer(0, "/test", img1.cols, img1.rows, img1.elemSize(),
-                             1);
+  RtstStreamer rtsp_streamer(0, 0, "/test", img1.cols, img1.rows,
+                             img1.elemSize(), 1);
   rtsp_streamer.Initialize();
 
   PLOG_DEBUG << "mat size: " << img1.total() * img1.elemSize();

@@ -16,10 +16,11 @@ const std::string RtstStreamer::kJpeg =
     "( appsrc name=mysrc ! videoconvert ! "
     "video/x-raw,format=I420 ! jpegenc ! rtpjpegpay name=pay0 pt=96 )";
 
-RtstStreamer::RtstStreamer(const int mode, const std::string &url,
-                           const int width, const int height, const int depth,
-                           const int fps)
+RtstStreamer::RtstStreamer(const int mode, const int format,
+                           const std::string &url, const int width,
+                           const int height, const int depth, const int fps)
     : mode_(mode),
+      format_(format),
       url_(url),
       width_(width),
       height_(height),
@@ -76,14 +77,26 @@ void RtstStreamer::MediaConfigure(GstRTSPMediaFactory *factory,
   GstElement *appsrc =
       gst_bin_get_by_name_recurse_up(GST_BIN(element), "mysrc");
 
-  gst_util_set_object_arg(G_OBJECT(appsrc), "format", "time");
-  g_object_set(
-      G_OBJECT(appsrc), "caps",
-      gst_caps_new_simple("video/x-raw", "format", G_TYPE_STRING, "BGR",
-                          "width", G_TYPE_INT, rtsp_streamer->width_, "height",
-                          G_TYPE_INT, rtsp_streamer->height_, "framerate",
-                          GST_TYPE_FRACTION, rtsp_streamer->fps_, 1, NULL),
-      NULL);
+  if (rtsp_streamer->format_ == 0) {
+    gst_util_set_object_arg(G_OBJECT(appsrc), "format", "time");
+    g_object_set(
+        G_OBJECT(appsrc), "caps",
+        gst_caps_new_simple(
+            "video/x-raw", "format", G_TYPE_STRING, "BGR", "width", G_TYPE_INT,
+            rtsp_streamer->width_, "height", G_TYPE_INT, rtsp_streamer->height_,
+            "framerate", GST_TYPE_FRACTION, rtsp_streamer->fps_, 1, NULL),
+        NULL);
+  } else {
+    gst_util_set_object_arg(G_OBJECT(appsrc), "format", "time");
+    // g_object_set(G_OBJECT(appsrc), "blocksize", 196608, NULL);
+    g_object_set(
+        G_OBJECT(appsrc), "caps",
+        gst_caps_new_simple(
+            "video/x-raw", "format", G_TYPE_STRING, "BGRA", "width", G_TYPE_INT,
+            rtsp_streamer->width_, "height", G_TYPE_INT, rtsp_streamer->height_,
+            "framerate", GST_TYPE_FRACTION, rtsp_streamer->fps_, 1, NULL),
+        NULL);
+  }
 
   rtsp_streamer->timestamp_ = 0;
   rtsp_streamer->image_size_ =
