@@ -16,10 +16,11 @@ const std::string RtstStreamer::kJpeg =
     "( appsrc name=mysrc ! videoconvert ! "
     "video/x-raw,format=I420 ! jpegenc ! rtpjpegpay name=pay0 pt=96 )";
 
-RtstStreamer::RtstStreamer(const int mode, const std::string &url,
-                           const int width, const int height, const int depth,
-                           const int fps)
-    : mode_(mode),
+RtstStreamer::RtstStreamer(const Encode enc, const ImageFormat format,
+                           const std::string &url, const int width,
+                           const int height, const int depth, const int fps)
+    : enc_(enc),
+      format_(format),
       url_(url),
       width_(width),
       height_(height),
@@ -44,13 +45,17 @@ void RtstStreamer::Run() {
   GstRTSPMountPoints *mounts = gst_rtsp_server_get_mount_points(server_);
   GstRTSPMediaFactory *factory = gst_rtsp_media_factory_new();
 
-  if (mode_ == 0) {
-    gst_rtsp_media_factory_set_launch(factory, kJpeg.c_str());
-  } else if (mode_ == 1) {
-    gst_rtsp_media_factory_set_launch(factory, kH264.c_str());
-
-  } else {
-    gst_rtsp_media_factory_set_launch(factory, kJpeg.c_str());
+  switch (enc_) {
+    case Encode::kJPEG:
+      gst_rtsp_media_factory_set_launch(factory, kJpeg.c_str());
+      break;
+    case Encode::kH264:
+      // No test
+      gst_rtsp_media_factory_set_launch(factory, kH264.c_str());
+      break;
+    default:
+      gst_rtsp_media_factory_set_launch(factory, kJpeg.c_str());
+      PLOG_WARNING << "Encode is not defined. Encode is set to BGR.";
   }
 
   g_signal_connect(factory, "media-configure",
@@ -76,14 +81,39 @@ void RtstStreamer::MediaConfigure(GstRTSPMediaFactory *factory,
   GstElement *appsrc =
       gst_bin_get_by_name_recurse_up(GST_BIN(element), "mysrc");
 
-  gst_util_set_object_arg(G_OBJECT(appsrc), "format", "time");
-  g_object_set(
-      G_OBJECT(appsrc), "caps",
-      gst_caps_new_simple("video/x-raw", "format", G_TYPE_STRING, "BGR",
-                          "width", G_TYPE_INT, rtsp_streamer->width_, "height",
-                          G_TYPE_INT, rtsp_streamer->height_, "framerate",
-                          GST_TYPE_FRACTION, rtsp_streamer->fps_, 1, NULL),
-      NULL);
+  switch (rtsp_streamer->format_) {
+    case ImageFormat::kBGR:
+      gst_util_set_object_arg(G_OBJECT(appsrc), "format", "time");
+      g_object_set(G_OBJECT(appsrc), "caps",
+                   gst_caps_new_simple(
+                       "video/x-raw", "format", G_TYPE_STRING, "BGR", "width",
+                       G_TYPE_INT, rtsp_streamer->width_, "height", G_TYPE_INT,
+                       rtsp_streamer->height_, "framerate", GST_TYPE_FRACTION,
+                       rtsp_streamer->fps_, 1, NULL),
+                   NULL);
+      break;
+    case ImageFormat::kBGRA:
+      gst_util_set_object_arg(G_OBJECT(appsrc), "format", "time");
+      // g_object_set(G_OBJECT(appsrc), "blocksize", 196608, NULL);
+      g_object_set(G_OBJECT(appsrc), "caps",
+                   gst_caps_new_simple(
+                       "video/x-raw", "format", G_TYPE_STRING, "BGRA", "width",
+                       G_TYPE_INT, rtsp_streamer->width_, "height", G_TYPE_INT,
+                       rtsp_streamer->height_, "framerate", GST_TYPE_FRACTION,
+                       rtsp_streamer->fps_, 1, NULL),
+                   NULL);
+      break;
+    default:
+      gst_util_set_object_arg(G_OBJECT(appsrc), "format", "time");
+      g_object_set(G_OBJECT(appsrc), "caps",
+                   gst_caps_new_simple(
+                       "video/x-raw", "format", G_TYPE_STRING, "BGR", "width",
+                       G_TYPE_INT, rtsp_streamer->width_, "height", G_TYPE_INT,
+                       rtsp_streamer->height_, "framerate", GST_TYPE_FRACTION,
+                       rtsp_streamer->fps_, 1, NULL),
+                   NULL);
+      PLOG_WARNING << "Format is not defined. Format is set to BGR.";
+  }
 
   rtsp_streamer->timestamp_ = 0;
   rtsp_streamer->image_size_ =
@@ -146,6 +176,7 @@ void RtstStreamer::setImage(const uint8_t *image, const size_t size) {
   PLOG_DEBUG << "Enter setImage()";
   mutex_.lock();
   if (buffer_) {
+    PLOG_DEBUG << "Start copy : size = " << size;
     std::memcpy(buffer_.get(), image, size);
     PLOG_DEBUG << "Copied image";
   }

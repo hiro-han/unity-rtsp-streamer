@@ -1,18 +1,34 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(rtsp-streamer)
+set(RTSPLIBTEST rtsp-streamer-test)
+project(${RTSPLIBTEST})
+
 find_package(OpenCV REQUIRED)
 
-add_executable(rtsp-streamer main.cpp)
+add_executable(${RTSPLIBTEST} main.cpp)
 
-target_link_libraries(rtsp-streamer ${OpenCV_LIBS} )
-target_link_libraries(rtsp-streamer rtsp-streamer-lib)
-target_link_libraries(rtsp-streamer ${GSTREAMER_LIB_LIBRARIES})
-target_link_libraries(rtsp-streamer libgstrtspserver-1.0.so)
+# RtspLib
+target_link_libraries(${RTSPLIBTEST} rtsp-streamer-lib)
+target_include_directories(${RTSPLIBTEST} PRIVATE ${PROJECT_DIR}/src)
+
+# OpenCV
+target_link_libraries(${RTSPLIBTEST} ${OpenCV_LIBS})
+
+# gstreamer
+target_include_directories(${RTSPLIBTEST} PRIVATE ${GSTREAMER_LIB_INCLUDE_DIRS})
+target_link_libraries(${RTSPLIBTEST} ${GSTREAMER_LIB_LIBRARIES})
+
+# gstreamer rtsp
+target_link_libraries(${RTSPLIBTEST} libgstrtspserver-1.0.so)
+
+# plog
+target_include_directories(${RTSPLIBTEST} PRIVATE ../lib/plog/include)
 
 
-target_include_directories(rtsp-streamer PRIVATE ../src)
-target_include_directories(rtsp-streamer PRIVATE ${GSTREAMER_LIB_INCLUDE_DIRS})
 
-target_include_directories(rtsp-streamer PRIVATE ../lib/plog/include)
+
+
+
+
+
 
