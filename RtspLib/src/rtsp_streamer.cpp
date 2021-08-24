@@ -7,6 +7,9 @@
 #include <fstream>
 #include <memory>
 
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
 const std::string RtstStreamer::kH264 =
     "( appsrc name=mysrc ! videoconvert ! "
     "x264enc ! speed-preset=ultrafast tune=zerolatency threads=1 ! "
@@ -137,6 +140,13 @@ void RtstStreamer::NeedData(GstElement *appsrc, guint unused,
   PLOG_DEBUG << "Enter NeedData()";
 
   RtstStreamer *rtsp_streamer = reinterpret_cast<RtstStreamer *>(user_data);
+#ifdef OPENGL
+  rtsp_streamer->mutex_.lock();
+  GstBuffer *buffer = gst_buffer_new_wrapped(rtsp_streamer->buffer_.get(),
+                                             rtsp_streamer->image_size_);
+  rtsp_streamer->mutex_.unlock();
+
+#else
   GstBuffer *buffer =
       gst_buffer_new_allocate(NULL, rtsp_streamer->image_size_, NULL);
   if (buffer == NULL) {
@@ -154,7 +164,7 @@ void RtstStreamer::NeedData(GstElement *appsrc, guint unused,
                << ", copied size = " << copied_size;
     return;
   }
-
+#endif
   guint64 duration =
       gst_util_uint64_scale_int(1, GST_SECOND, rtsp_streamer->fps_);
   GST_BUFFER_PTS(buffer) = rtsp_streamer->timestamp_;
@@ -175,8 +185,15 @@ void RtstStreamer::setImage(const uint8_t *image, const size_t size) {
   PLOG_DEBUG << "Enter setImage()";
   mutex_.lock();
   if (buffer_) {
+#ifdef OPENGL
+    // GLuint gltex = (GLuint)image;
+    glBindTexture(GL_TEXTURE_2D, (GLuint)(size_t)(image));
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer_.get());
+#else
+    PLOG_DEBUG << "Start copy : size = " << size;
     std::memcpy(buffer_.get(), image, size);
     PLOG_DEBUG << "Copied image";
+#endif
   }
   mutex_.unlock();
   PLOG_DEBUG << "Exit setImage()";

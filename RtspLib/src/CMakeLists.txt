@@ -23,6 +23,8 @@ project(${RTSPLIB})
 
 
 # find_package(GStreamer REQUIRED)
+find_package(GLUT REQUIRED)
+find_package(OpenGL REQUIRED)
 
 add_library(${RTSPLIB} SHARED rtsp_streamer.cpp  ${rtspserverfiles})
 
@@ -45,6 +47,10 @@ target_link_libraries(${RTSPLIB} libgstrtspserver-1.0.so)
 # include_directories(gst-rtsp-server)
 
 # message("GSTREAMER RTST: ${GSTREAMER_LIB_INCLUDE_DIRS}" )
+
+
+target_link_libraries(${RTSPLIB} ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} )
+target_include_directories(${RTSPLIB} PRIVATE ${OPENGL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS} )
 
 target_include_directories(${RTSPLIB} PRIVATE ../lib/plog/include)
 
