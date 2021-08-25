@@ -9,6 +9,7 @@ enum class Encode : int {
 enum class ImageFormat : int {
   kBGR = 0,
   kBGRA = 1,
+  kRGBA = 2,
 };
 
 #endif

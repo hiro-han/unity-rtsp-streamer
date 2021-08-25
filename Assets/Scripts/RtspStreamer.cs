@@ -39,7 +39,7 @@ public class RtspStreamer : MonoBehaviour
         Debug.Log("Depth : " + depth.ToString());
         Debug.Log("Size : " + _dataSize.ToString());
 
-        Initialize(1, "/test", width, height, depth);
+        Initialize(2, "/test", width, height, depth);
 
         Debug.Log("Exit : Start()");
     }

@@ -103,6 +103,17 @@ void RtstStreamer::MediaConfigure(GstRTSPMediaFactory *factory,
                        rtsp_streamer->fps_, 1, NULL),
                    NULL);
       break;
+    case ImageFormat::kRGBA:
+      gst_util_set_object_arg(G_OBJECT(appsrc), "format", "time");
+      // g_object_set(G_OBJECT(appsrc), "blocksize", 196608, NULL);
+      g_object_set(G_OBJECT(appsrc), "caps",
+                   gst_caps_new_simple(
+                       "video/x-raw", "format", G_TYPE_STRING, "RGBA", "width",
+                       G_TYPE_INT, rtsp_streamer->width_, "height", G_TYPE_INT,
+                       rtsp_streamer->height_, "framerate", GST_TYPE_FRACTION,
+                       rtsp_streamer->fps_, 1, NULL),
+                   NULL);
+      break;
     default:
       gst_util_set_object_arg(G_OBJECT(appsrc), "format", "time");
       g_object_set(G_OBJECT(appsrc), "caps",
