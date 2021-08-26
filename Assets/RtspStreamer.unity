@@ -166,6 +166,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _renderTexture: {fileID: 8400000, guid: 584e4df6cc9a357cb9e88828227b6872, type: 2}
   _fps: 0.5
+  _url: test
 --- !u!1 &423263521
 GameObject:
   m_ObjectHideFlags: 0

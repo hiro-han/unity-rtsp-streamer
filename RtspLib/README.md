@@ -1,25 +1,9 @@
-# Intall gstreamer
-Intall gstreamer on Host PC
+# RtspLib
+C++ library and application to output RTSP stream.
+Also, this library includes wrapper for c#.
 
-## Install gstreamer
-```
-$ sudo apt-get install libgstreamer1.0-0 gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-doc gstreamer1.0-tools gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-qt5 gstreamer1.0-pulseaudio
-```
 ## Install gst-rtsp-server
-I failed to install gst-rtsp-server. So, I built it from source code.
-
-### Failed
-```
-$ sudo apt-get install libgstrtspserver-1.0-dev gstreamer1.0-rtsp
-```
-
-### Suceeded
-#### Intall libraries
-```
-$ sudo apt-get install autoconf gtk-doc-tools
-```
-
-#### Clone github repository
+1. Clone github repository
 ```
 $ git submodule update --init
 ```
@@ -31,18 +15,20 @@ Following repositories are cloned under lib directory.
 - https://github.com/SergiusTheBest/plog.git
     - SHA-1 : 914e799d2b08d790f5d04d1c46928586b3a41250
 
-#### Build
+2. Build and Install
 ```
 $ cd gst-rtsp-server
-$ git checkout -b 1.8.3 
-
 $ ./autogen.sh
 $ ./configure
 $ ./make
 $ sudo make install
 ```
+(*) If you can install gst-rtsp-server using apt command, you can use following command.
+```
+$ sudo apt-get install libgstrtspserver-1.0-dev gstreamer1.0-rtsp
+```
 
-# Build
+## Build 
 ```
 $ mkdir build
 $ cd build
@@ -50,8 +36,8 @@ $ cmake ..
 $ make
 ```
 
-# Run
-## Put test data
+## Run test application
+1. Put test data
 Put test image data under test/data directory.
 All files should have same resolution.
 - File name:
@@ -61,8 +47,9 @@ All files should have same resolution.
 
 If you want to change data directory, file name and number of files, you can edit [test/main.cpp](test/main.cpp)
 
-### Test App
+2. Run test application
 ```
 $ cd build/test
 $ ./rtsp-streamer-test
 ```
+URL of RTSP stream is *rtsp://127.0.0.1:8554/test* as default.

@@ -17,6 +17,7 @@ public class RtspStreamer : MonoBehaviour
     // public Camera camera;
     public RenderTexture _renderTexture;
     public float _fps = 0.5f;
+    public string _url = "test";
     private Texture2D _texture;
     private Texture2D _flipped_texture;
     private Rect _rect;
@@ -44,7 +45,7 @@ public class RtspStreamer : MonoBehaviour
         Debug.Log("Depth : " + depth.ToString());
         Debug.Log("Size : " + _dataSize.ToString());
 
-        Initialize(2, "/test", _width, _height, depth);
+        Initialize(2, "/" + _url, _width, _height, depth);
 
         Debug.Log("Exit : Start()");
     }
